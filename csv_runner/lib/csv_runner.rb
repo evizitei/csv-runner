@@ -32,7 +32,7 @@ module CsvRunner
     return csv_accumulator
   end
   
-  def extract_csv_date(val,format)
+  def extract_csv_date(val,format="%m/%d/%Y")
     return nil unless (!val.nil? and val.length > 0)
     
     d = Date.strptime(val,format) 
@@ -40,6 +40,6 @@ module CsvRunner
   end
   
   def extract_csv_bool(val)
-    ((val.nil? || val == "") ? false : (val == "Y" ? true : false))
+    ((val.nil? || val == "") ? false : (val == "Y" or val == "y" ? true : false))
   end
 end
