@@ -18,7 +18,7 @@ class Person < ActiveRecord::Base
 	end
 
 	def self.csv_validate(file)       
-	  self.csv_run(file,CSV_SCHEMA){|acc,person| acc.push("#{person.name} [#{person.errors.full_messages[0]}]") if !school.valid? }
+	  self.csv_run(file,CSV_SCHEMA){|acc,person| acc.push("#{person.name} [#{person.errors.full_messages[0]}]") if !person.valid? }
 	end
 end
 
