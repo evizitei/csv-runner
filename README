@@ -1,1 +1,29 @@
-#Coming Soon!  Documentation for this plugin.
+#Docs
+
+PLEASE NOTE:  Currently CsvRunner is dependant on "mocha-0.5.6".  Without this plugin deployed to the same directory in your rails app, the tests will not run.
+
+csv_runner is a plugin I use to get around the hassle of writing csv upload methods into all of my ActiveRecord entities.  An example of it's use can be seen below:
+
+class Person < ActiveRecord::Base
+  extend CsvRunner
+
+	CSV_SCHEMA = [{:field=>:name=,:type=>:string},
+           		  {:field=>:birth_date=,:type=>:date},
+		          {:field=>:is_married=,:type=>:bool},
+		          {:field=>:number_of_children=,:type=>:int},
+		          {:field=>:category=,:type=>:cap_string}]
+		
+  	def self.csv_import(file)
+	  self.csv_run(file,CSV_SCHEMA){|acc,person| acc.push(person.name) if school.save!}
+	end
+
+	def self.csv_validate(file)       
+	  self.csv_run(file,CSV_SCHEMA){|acc,person| acc.push("#{person.name} [#{person.errors.full_messages[0]}]") if !school.valid? }
+	end
+end
+
+As you can see in the example above, the main addition that CsvRunner adds to the class is the "csv_run" method, which takes the file along with some schema information
+(which is necessary for knowing what order the columns are in), and populates fields on a newly created entity.  This entity is then passed as an argument
+(along with an accumulator array) to the block that was passed in, so you can do whatever you want with the results.  In the example above, the "csv_validate" method
+runs validation on each one and returns an array that lists the first error that shows up for each entity with a validation problem.  the "csv_import" method,
+in comparison, actually saves each record and returns an array that contains the names of each person saved.  
