@@ -88,4 +88,22 @@ class CsvRunnerTest < Test::Unit::TestCase
     assert_equal 3,obj.static_value_1
     assert_equal "Hello World",obj.static_value_2
   end
+  
+  def test_can_run_without_default_params
+    mapping = [{:field=>:name=,:type=>:string},
+               {:field=>:birth_date=,:type=>:date},
+               {:field=>:is_married=,:type=>:bool},
+               {:field=>:number_of_children=,:type=>:int},
+               {:field=>:category=,:type=>:cap_string}]
+              
+    CSV::Reader.stubs(:parse).returns([["Name","08/09/1986","Y","13","ot"]])
+    results = CsvRunnerHost.csv_run(nil,mapping) {|acc,obj|  acc.push obj }
+    
+    obj = results[0]
+    assert_equal "Name",obj.name
+    assert_equal Date.civil(1986,8,9),obj.birth_date
+    assert obj.is_married
+    assert_equal 13,obj.number_of_children
+    assert_equal "OT",obj.category
+  end
 end

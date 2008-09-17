@@ -8,7 +8,7 @@ module CsvRunner
     DATE_FORMATS[format]
   end
   
-  def csv_run(file,mappings,values,date_format="%m/%d/%Y")
+  def csv_run(file,mappings,values=[],date_format="%m/%d/%Y")
     parsed_file=CSV::Reader.parse(file)
     csv_accumulator=[]
     parsed_file.each_with_index  do |row,i|
