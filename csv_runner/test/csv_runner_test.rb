@@ -142,4 +142,23 @@ class CsvRunnerTest < Test::Unit::TestCase
     assert_equal 13,obj.number_of_children
     assert_equal "OT",obj.category
   end
+  
+  def test_ignoring_a_column
+    mapping = [[:name=,:string],
+               [:birth_date=,:date],
+               [:ignore_column],
+               [:is_married=,:bool],
+               [:number_of_children=,:int],
+               [:category=,:cap_string]]
+              
+    CSV::Reader.stubs(:parse).returns([["Name","08/09/1986","Blarghity","Y","13","ot"]])
+    results = CsvRunnerHost.csv_run(nil,mapping) {|acc,obj|  acc.push obj }
+    
+    obj = results[0]
+    assert_equal "Name",obj.name
+    assert_equal Date.civil(1986,8,9),obj.birth_date
+    assert obj.is_married
+    assert_equal 13,obj.number_of_children
+    assert_equal "OT",obj.category
+  end
 end

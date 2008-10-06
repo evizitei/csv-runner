@@ -18,17 +18,19 @@ module CsvRunner
         mappings.each_with_index do |mapping,j|
           val = row[j]
           field = mapping[0]
-          type = mapping[1]
-          if(type == :date)
-            val = extract_csv_date(val,date_format)
-          elsif(type == :int)
-            val = extract_int(val)
-          elsif(type == :bool)
-            val = extract_csv_bool(val)
-          elsif(type == :cap_string)
-            val = extract_cap_string(val)
+          if(field != :ignore_column)
+            type = mapping[1]
+            if(type == :date)
+              val = extract_csv_date(val,date_format)
+            elsif(type == :int)
+              val = extract_int(val)
+            elsif(type == :bool)
+              val = extract_csv_bool(val)
+            elsif(type == :cap_string)
+              val = extract_cap_string(val)
+            end
+            s.send(field,val)
           end
-          s.send(field,val)
         end
         
         values.each {|val| s.send(val[0],val[1]) }
