@@ -17,19 +17,21 @@ module CsvRunner
           
         mappings.each_with_index do |mapping,j|
           val = row[j]
-          if(mapping[:type] == :date)
+          field = mapping[0]
+          type = mapping[1]
+          if(type == :date)
             val = extract_csv_date(val,date_format)
-          elsif(mapping[:type] == :int)
+          elsif(type == :int)
             val = extract_int(val)
-          elsif(mapping[:type] == :bool)
+          elsif(type == :bool)
             val = extract_csv_bool(val)
-          elsif(mapping[:type] == :cap_string)
+          elsif(type == :cap_string)
             val = extract_cap_string(val)
           end
-          s.send(mapping[:field],val)
+          s.send(field,val)
         end
         
-        values.each {|val| s.send(val[:field],val[:value]) }
+        values.each {|val| s.send(val[0],val[1]) }
 
         GC.start if i%50==0
         yield csv_accumulator,s

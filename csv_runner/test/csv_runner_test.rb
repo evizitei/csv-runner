@@ -65,14 +65,14 @@ class CsvRunnerTest < Test::Unit::TestCase
   end
   
   def test_csv_run
-    mapping = [{:field=>:name=,:type=>:string},
-               {:field=>:birth_date=,:type=>:date},
-               {:field=>:is_married=,:type=>:bool},
-               {:field=>:number_of_children=,:type=>:int},
-               {:field=>:category=,:type=>:cap_string}]
+    mapping = [[:name=,:string],
+               [:birth_date=,:date],
+               [:is_married=,:bool],
+               [:number_of_children=,:int],
+               [:category=,:cap_string]]
                
-    values = [{:field=>:static_value_1=,:value=>3},
-              {:field=>:static_value_2=,:value=>"Hello World"}]
+    values = [[:static_value_1=,3],
+              [:static_value_2=,"Hello World"]]
               
     CSV::Reader.stubs(:parse).returns([["Name","08/09/1986","Y","13","ot"]])
     results = CsvRunnerHost.csv_run(nil,mapping,values,"%m/%d/%Y") do |acc,obj| 
@@ -90,11 +90,11 @@ class CsvRunnerTest < Test::Unit::TestCase
   end
   
   def test_can_run_without_default_params
-    mapping = [{:field=>:name=,:type=>:string},
-               {:field=>:birth_date=,:type=>:date},
-               {:field=>:is_married=,:type=>:bool},
-               {:field=>:number_of_children=,:type=>:int},
-               {:field=>:category=,:type=>:cap_string}]
+    mapping = [[:name=,:string],
+               [:birth_date=,:date],
+               [:is_married=,:bool],
+               [:number_of_children=,:int],
+               [:category=,:cap_string]]
               
     CSV::Reader.stubs(:parse).returns([["Name","08/09/1986","Y","13","ot"]])
     results = CsvRunnerHost.csv_run(nil,mapping) {|acc,obj|  acc.push obj }
@@ -102,6 +102,42 @@ class CsvRunnerTest < Test::Unit::TestCase
     obj = results[0]
     assert_equal "Name",obj.name
     assert_equal Date.civil(1986,8,9),obj.birth_date
+    assert obj.is_married
+    assert_equal 13,obj.number_of_children
+    assert_equal "OT",obj.category
+  end
+  
+  def test_dont_bomb_on_blank_dates
+    mapping = [[:name=,:string],
+               [:birth_date=,:date],
+               [:is_married=,:bool],
+               [:number_of_children=,:int],
+               [:category=,:cap_string]]
+              
+    CSV::Reader.stubs(:parse).returns([["Name","","Y","13","ot"]])
+    results = CsvRunnerHost.csv_run(nil,mapping) {|acc,obj|  acc.push obj }
+    
+    obj = results[0]
+    assert_equal "Name",obj.name
+    assert_nil obj.birth_date
+    assert obj.is_married
+    assert_equal 13,obj.number_of_children
+    assert_equal "OT",obj.category
+  end
+  
+  def test_dont_bomb_on_nil_dates
+    mapping = [[:name=,:string],
+               [:birth_date=,:date],
+               [:is_married=,:bool],
+               [:number_of_children=,:int],
+               [:category=,:cap_string]]
+              
+    CSV::Reader.stubs(:parse).returns([["Name",nil,"Y","13","ot"]])
+    results = CsvRunnerHost.csv_run(nil,mapping) {|acc,obj|  acc.push obj }
+    
+    obj = results[0]
+    assert_equal "Name",obj.name
+    assert_nil obj.birth_date
     assert obj.is_married
     assert_equal 13,obj.number_of_children
     assert_equal "OT",obj.category
